@@ -43,6 +43,10 @@ WITH_OPENCV {
         #LIBS += -L/usr/local/lib   -lopencv_imgproc -lopencv_highgui -lopencv_core
         include (3rdparty/QtOpenCV/opencv.pri)
     }
+    windows {
+        #!load(opencv):message("You must create an opencv.prf, and move it to $$[QT_INSTALL_PREFIX]/mkspecs/features/")
+        include (3rdparty/QtOpenCV/opencv.pri)
+    }
 }
 
 WITH_MPV {

@@ -6,6 +6,7 @@ VideoPlayerDummy::VideoPlayerDummy(QWidget *parent) : VideoPlayer(parent)
 
 bool VideoPlayerDummy::openMedia(Clip *clip)
 {
+    return true;
 }
 
 void VideoPlayerDummy::seek(int pos)

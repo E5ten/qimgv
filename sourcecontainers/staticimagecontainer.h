@@ -3,6 +3,7 @@
 
 #include <QDebug>
 #include <QString>
+#include <memory>
 
 #include "3rdparty/QtOpenCV/cvmatandqimage.h"
 
