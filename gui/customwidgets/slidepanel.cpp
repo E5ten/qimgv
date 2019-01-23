@@ -29,10 +29,10 @@ SlidePanel::SlidePanel(OverlayContainerWidget *parent)
 
     outCurve.setType(QEasingCurve::OutQuart);
 
-    timeline.setDuration(230);
+    timeline.setDuration(ANIMATION_DURATION);
     timeline.setCurveShape(QTimeLine::LinearCurve);
     timeline.setStartFrame(0);
-    timeline.setEndFrame(100);
+    timeline.setEndFrame(ANIMATION_DURATION);
     // For some reason 16 feels janky on windows. Linux is fine.
 #ifdef _WIN32
     timeline.setUpdateInterval(8);
@@ -56,6 +56,12 @@ void SlidePanel::hide() {
     QWidget::hide();
 }
 
+void SlidePanel::hideAnimated() {
+    if(!this->isHidden() && timeline.state() != QTimeLine::Running) {
+        timeline.start();
+    }
+}
+
 void SlidePanel::setWidget(std::shared_ptr<QWidget> w) {
     if(!w)
         return;
@@ -68,13 +74,6 @@ void SlidePanel::setWidget(std::shared_ptr<QWidget> w) {
 
 bool SlidePanel::hasWidget() {
     return (mWidget != nullptr);
-}
-
-// TODO: this misfires with QT_SCALE_FACTOR > 1.0
-void SlidePanel::leaveEvent(QEvent *event) {
-    Q_UNUSED(event)
-    if(timeline.state() != QTimeLine::Running)
-        timeline.start();
 }
 
 void SlidePanel::show() {
@@ -98,7 +97,7 @@ QRect SlidePanel::staticGeometry() {
 }
 
 void SlidePanel::animationUpdate(int frame) {
-    // Calculate local cursor position; ocrrect for the current pos() animation
+    // Calculate local cursor position; correct for the current pos() animation
     QPoint adjustedPos = mapFromGlobal(QCursor::pos()) + this->pos();
     if(triggerRect().contains(adjustedPos, true)) {
         // Cancel the animation if cursor is back at the panel
@@ -107,12 +106,18 @@ void SlidePanel::animationUpdate(int frame) {
         setProperty("pos", startPosition);
     } else {
         // Apply the animation frame
-        qreal value = outCurve.valueForProgress(frame / 100.0);
-        QPoint newPos = QPoint(static_cast<int>(endPosition.x() * value),
-                               static_cast<int>(endPosition.y() * value));
-        setProperty("pos", newPos);
+        qreal value = outCurve.valueForProgress(static_cast<qreal>(frame) / ANIMATION_DURATION);
+        QPoint newPosOffset = QPoint(static_cast<int>((endPosition.x() - startPosition.x()) * value),
+                                     static_cast<int>((endPosition.y() - startPosition.y()) * value));
+        setProperty("pos", startPosition + newPosOffset);
         fadeEffect->setOpacity(1 - value);
     }
+    qApp->processEvents();
+}
+
+void SlidePanel::setAnimationRange(QPoint start, QPoint end) {
+    startPosition = start;
+    endPosition = end;
 }
 
 void SlidePanel::onAnimationFinish() {

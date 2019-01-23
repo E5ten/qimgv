@@ -1,10 +1,10 @@
-qimgv | Current version: 0.7.1
+qimgv | Current version: 0.7.2
 =====
-A cross-platform image viewer with webm support. Written in qt5.
+Qt5 image viewer. Fast, configurable, easy to use. Optional video support.
+
+![alt tag](https://i.imgur.com/fdHKWtf.png)
 
 ## [qimgv v0.6 video overview](https://www.youtube.com/watch?v=AODRGCRPCpw)
-
-![alt tag](https://i.imgur.com/prIficV.png)
 
 ## Key features:
 
@@ -64,7 +64,7 @@ The idea is to have a uncluttered, simple and easy to use UI. You can see ui ele
 
 There is a pull-down panel with thumbnails, as well as folder view (accessible by pressing Return).
 
-You can also bring up a context menu by right-clicking on an image.
+You can also bring up a context menu by right-clicking an image.
 
 ### Using quick copy / quick move panels
 
@@ -101,42 +101,91 @@ QT_SCALE_FACTOR="1.5" qimgv /path/to/image.png
 ```
 You can put it in `qimgv.desktop` file to make it permanent. Using values less than `1.0` may break some things.
 
+qimgv should also obey the global scale factor set in kde's systemsettings.
+
+### APNG support
+
+APNG is supported via third-party qt plugin. (Included in windows qimgv package)
+ 
+If you are linux user, install the latest [QtApng by Skycoder42](https://github.com/Skycoder42/QtApng).
+
+### RAW support
+
+Viewing raw is supported via [qtraw plugin](https://github.com/mardy/qtraw). It is not included in windows release at the time.
+
 ## Installation instructions
 
-### Linux
+### GNU+Linux
 
-  __Arch:__ Available in AUR - `qimgv-git`
+__Arch:__ Available in AUR - `qimgv-git`
   
-  __Gentoo:__ `emerge qimgv`
-    
-  __Other distros (manual install):__
+__Gentoo:__ `emerge qimgv`
   
-  1. Install dependencies ( git, cmake, qt >= 5.6, libmpv >= 0.22, mpv)
+__Manual install:__
+ 
+__1. Install dependencies ( git, cmake, qt >= 5.6, libmpv >= 0.22, mpv)__
   
-     __Ubuntu & derivatives:__
+_Ubuntu & derivatives:_
      
-     	`sudo apt install build-essential cmake qt5-default libmpv-dev `
+```
+sudo apt install build-essential cmake qt5-default
+```
      
-     __Fedora__:
-     
-     	Enable RPMFusion in order to get `mpv` [https://rpmfusion.org/Configuration](https://rpmfusion.org/Configuration).
+_Fedora:_
+
+```
+sudo dnf install git cmake qt5 qt5-devel gcc-c++ qt5-devel
+```
 	
-        `sudo dnf install git cmake qt5 qt5-devel gcc-c++ qt5-devel mpv mpv-libs-devel`
+__2. _(Optional)_ Dependencies for video playback ( libmpv >= 0.22, mpv)__
+  	
+_Ubuntu & derivatives:_
+     
+```
+sudo apt install libmpv-dev
+```
+     
+_Fedora_:
+     
+Enable RPMFusion [https://rpmfusion.org/Configuration](https://rpmfusion.org/Configuration).
+	
+```
+sudo dnf install mpv mpv-libs-devel
+```
 		
-  2. Build
+__2. Build__
 ```
 git clone https://github.com/easymodo/qimgv.git
-cd qimgv/scripts
-./build.sh
+cd qimgv && mkdir -p build && cd build
 ```
-  _Note:_ in order to get background blur in kde run `build-kde.sh` instead.
-  
-  3. Install  
+
+Regular build
+
 ```
-./install.sh
+cmake -DCMAKE_INSTALL_PREFIX=/usr/ -DCMAKE_BINARY_DIR=${DIR}/ .. && make -j4
+```
+
+Build with __video support__ (note: negatively affects startup speed)
+
+```
+cmake -DVIDEO_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=/usr/ -DCMAKE_BINARY_DIR=${DIR}/ .. && make -j4
+```
+
+Build with better __KDE support__
+
+```
+cmake -DKDE_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=/usr/ -DCMAKE_BINARY_DIR=${DIR}/ .. && make -j4
+```
+
+__3. Install__
+
+```
+sudo make install
 ```
 
 ### Windows
 
-  [Grab the latest release here](https://github.com/easymodo/qimgv/releases)
+  [Grab the latest release here.](https://github.com/easymodo/qimgv/releases)
+  
+  All windows builds are portable.
   

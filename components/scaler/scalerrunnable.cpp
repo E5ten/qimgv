@@ -1,6 +1,8 @@
 #include "scalerrunnable.h"
 #include "3rdparty/QtOpenCV/cvmatandqimage.h"
 
+#include <QElapsedTimer>
+
 ScalerRunnable::ScalerRunnable() {
 }
 

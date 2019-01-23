@@ -24,13 +24,10 @@ QMAKE_CXXFLAGS_RELEASE *= -O3
 # video support
 #CONFIG += WITH_MPV
 
-# support window blur
-# TODO: use more kde stuff (file dialogs for example)
-#CONFIG += WITH_KDE_BLUR
-
 # high quality image scaling
 # and possible speedups (needs testing)
 CONFIG += WITH_OPENCV
+#CONFIG += WITH_KDE_BLUR
 
 # store configs & temp dirs alongside the executable (windows only)
 CONFIG += PORTABLE

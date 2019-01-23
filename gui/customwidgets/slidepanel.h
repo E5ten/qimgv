@@ -24,6 +24,7 @@ public:
     // If this is called mid-animation then geometry() will be all wrong.
     virtual QRect triggerRect() = 0;
 
+    void hideAnimated();
 public slots:
     void show();
     void hide();
@@ -37,20 +38,22 @@ protected:
     QGraphicsOpacityEffect *fadeEffect;
     int panelSize, slideAmount;
     std::shared_ptr<QWidget> mWidget;
-    QPoint startPosition, endPosition;
     QRect mTriggerRect;
+    virtual void setAnimationRange(QPoint start, QPoint end);
     virtual void updateTriggerRect() = 0;
-    void leaveEvent(QEvent *event);
     void saveStaticGeometry(QRect geometry);
     QRect staticGeometry();
 
     QTimer timer;
     QTimeLine timeline;
     QEasingCurve outCurve;
+    const int ANIMATION_DURATION = 230;
 
+//    void mouseMoveEvent(QMouseEvent *event);
 private:
     QRect mStaticGeometry;
     qreal panelVisibleOpacity = 1.0;
+    QPoint startPosition, endPosition;
 
 };
 

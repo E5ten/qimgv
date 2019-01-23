@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setMouseTracking(true);
     this->setAcceptDrops(true);
+    this->setAccessibleName("mainwindow");
     desktopWidget = QApplication::desktop();
     windowMoveTimer.setSingleShot(true);
     windowMoveTimer.setInterval(150);
@@ -50,12 +51,13 @@ MainWindow::MainWindow(QWidget *parent)
     restoreWindowGeometry();
 }
 
-/*                                                          |-- [ImageViewer]
- *                                   |-- [DocumentWidget] --|
- * [MainWindow] -- [CentralWidget] --|                      |-- [VideoPlayer]
+/*                                                                         |-- [ImageViewer]
+ *                                   |-- [DocumentWidget]--[ViewerWidget]--|
+ * [MainWindow] -- [CentralWidget] --|                                     |-- [VideoPlayer]
  *                                   |-- [FolderView]
  *
  *  (not counting floating widgets)
+ *  ViewerWidget exists for input handling reasons (correct overlay hover handling)
  */
 void MainWindow::setupUi() {
     viewerWidget.reset(new ViewerWidget());
@@ -285,6 +287,14 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
         {
             mainPanel->show();
         }
+        // leaveEvent which misfires on HiDPI (rounding error somewhere?)
+        // add a few px of buffer area to avoid bugs
+        // it still fcks up Fitts law as the buttons are not receiving hover on screen border
+        else if( !mainPanel->triggerRect().adjusted(-8,-8,8,8).contains(event->pos()) &&
+                 mainPanel->triggerRect().adjusted(-8,-8,8,8).contains(lastMouseMovePos))
+        {
+            mainPanel->hideAnimated();
+        }
     }
     event->ignore();
     lastMouseMovePos = event->pos();
@@ -344,6 +354,11 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
         cropOverlay->setImageScale(viewerWidget->currentScale());
         cropOverlay->setImageDrawRect(viewerWidget->imageRect());
     }
+}
+
+void MainWindow::leaveEvent(QEvent *event) {
+    if(mainPanel)
+        mainPanel->hideAnimated();
 }
 
 void MainWindow::showDefault() {
@@ -539,23 +554,23 @@ void MainWindow::showMessageDirectoryStart() {
 }
 
 void MainWindow::showMessageFitWindow() {
-    floatingMessage->showMessage("Fit Window", FloatingWidgetPosition::BOTTOM, FloatingMessageIcon::NO_ICON, 350);
+    floatingMessage->showMessage("Fit Window", FloatingMessageIcon::NO_ICON, 350);
 }
 
 void MainWindow::showMessageFitWidth() {
-    floatingMessage->showMessage("Fit Width", FloatingWidgetPosition::BOTTOM, FloatingMessageIcon::NO_ICON, 350);
+    floatingMessage->showMessage("Fit Width", FloatingMessageIcon::NO_ICON, 350);
 }
 
 void MainWindow::showMessageFitOriginal() {
-    floatingMessage->showMessage("Fit 1:1", FloatingWidgetPosition::BOTTOM, FloatingMessageIcon::NO_ICON, 350);
+    floatingMessage->showMessage("Fit 1:1", FloatingMessageIcon::NO_ICON, 350);
 }
 
 void MainWindow::showMessage(QString text) {
-    floatingMessage->showMessage(text, FloatingWidgetPosition::BOTTOM, FloatingMessageIcon::NO_ICON, 1800);
+    floatingMessage->showMessage(text,  FloatingMessageIcon::NO_ICON, 1800);
 }
 
 void MainWindow::showMessage(QString text, int duration) {
-    floatingMessage->showMessage(text, FloatingWidgetPosition::BOTTOM, FloatingMessageIcon::NO_ICON, duration);
+    floatingMessage->showMessage(text, FloatingMessageIcon::NO_ICON, duration);
 }
 
 void MainWindow::readSettings() {
