@@ -3,10 +3,8 @@
 
 #include "gui/customwidgets/floatingwidget.h"
 #include <QWheelEvent>
-
-namespace Ui {
-class ImageInfoOverlay;
-}
+#include <QTableWidget>
+#include <QLabel>
 
 class ImageInfoOverlay : public FloatingWidget
 {
@@ -14,13 +12,16 @@ class ImageInfoOverlay : public FloatingWidget
 
 public:
     explicit ImageInfoOverlay(OverlayContainerWidget *parent = nullptr);
-    ~ImageInfoOverlay();
     void setExifInfo(QMap<QString, QString>);
 
 protected:
     void wheelEvent(QWheelEvent *event);
+
 private:
-    Ui::ImageInfoOverlay *ui;
+    void setupLayout();
+    QVBoxLayout layoutVRoot;
+    QTableWidget tableWidget;
+    QLabel headerLabel;
 };
 
 #endif // IMAGEINFOOVERLAY_H
