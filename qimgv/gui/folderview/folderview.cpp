@@ -1,44 +1,43 @@
 #include "folderview.h"
-#include "ui_folderview.h"
 
 FolderView::FolderView(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FolderView)
+    spacer(nullptr)
 {
-    ui->setupUi(this);
+    setupLayout();
 
     mWrapper.reset(new DirectoryViewWrapper(this));
 
-    ui->openButton->setAction("open");
-    ui->settingsButton->setAction("openSettings");
-    ui->exitButton->setAction("exit");
-    ui->docViewButton->setAction("documentView");
+    openButton.setAction("open");
+    settingsButton.setAction("openSettings");
+    exitButton.setAction("exit");
+    docViewButton.setAction("documentView");
 
-    int min = ui->thumbnailGrid->THUMBNAIL_SIZE_MIN;
-    int max = ui->thumbnailGrid->THUMBNAIL_SIZE_MAX;
-    int step = ui->thumbnailGrid->ZOOM_STEP;
+    int min = thumbnailGrid.THUMBNAIL_SIZE_MIN;
+    int max = thumbnailGrid.THUMBNAIL_SIZE_MAX;
+    int step = thumbnailGrid.ZOOM_STEP;
 
-    ui->zoomSlider->setMinimum(min / step);
-    ui->zoomSlider->setMaximum(max / step);
-    ui->zoomSlider->setSingleStep(1);
-    ui->zoomSlider->setPageStep(1);
+    zoomSlider.setMinimum(min / step);
+    zoomSlider.setMaximum(max / step);
+    zoomSlider.setSingleStep(1);
+    zoomSlider.setPageStep(1);
 
-    connect(ui->thumbnailGrid, SIGNAL(thumbnailPressed(int)),
+    connect(&thumbnailGrid, SIGNAL(thumbnailPressed(int)),
             this, SIGNAL(thumbnailPressed(int)));
-    connect(ui->thumbnailGrid, SIGNAL(thumbnailsRequested(QList<int>, int)),
+    connect(&thumbnailGrid, SIGNAL(thumbnailsRequested(QList<int>, int)),
             this, SIGNAL(thumbnailsRequested(QList<int>, int)));
 
-    connect(ui->zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(onZoomSliderValueChanged(int)));
-    connect(ui->thumbnailGrid, SIGNAL(thumbnailSizeChanged(int)), this, SLOT(onThumbnailSizeChanged(int)));
-    connect(ui->thumbnailGrid, SIGNAL(showLabelsChanged(bool)), this, SLOT(onShowLabelsChanged(bool)));
-    connect(ui->showLabelsButton, SIGNAL(toggled(bool)), this, SLOT(onShowLabelsButtonToggled(bool)));
-    connect(ui->sortingComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSortingSelected(int)));
+    connect(&zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(onZoomSliderValueChanged(int)));
+    connect(&thumbnailGrid, SIGNAL(thumbnailSizeChanged(int)), this, SLOT(onThumbnailSizeChanged(int)));
+    connect(&thumbnailGrid, SIGNAL(showLabelsChanged(bool)), this, SLOT(onShowLabelsChanged(bool)));
+    connect(&showLabelsButton, SIGNAL(toggled(bool)), this, SLOT(onShowLabelsButtonToggled(bool)));
+    connect(&sortingComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSortingSelected(int)));
 
-    ui->sortingComboBox->setItemDelegate(new QStyledItemDelegate(ui->sortingComboBox));
-    ui->sortingComboBox->view()->setTextElideMode(Qt::ElideNone);
+    sortingComboBox.setItemDelegate(new QStyledItemDelegate(&sortingComboBox));
+    sortingComboBox.view()->setTextElideMode(Qt::ElideNone);
 
-    ui->thumbnailGrid->setThumbnailSize(settings->folderViewIconSize());
-    ui->thumbnailGrid->setShowLabels(settings->showThumbnailLabels());
+    thumbnailGrid.setThumbnailSize(settings->folderViewIconSize());
+    thumbnailGrid.setShowLabels(settings->showThumbnailLabels());
     onSortingChanged(settings->sortingMode());
 
     QSizePolicy sp_retain = sizePolicy();
@@ -47,22 +46,60 @@ FolderView::FolderView(QWidget *parent) :
     hide();
 }
 
+void FolderView::setupLayout() {
+    layoutHPanel.setContentsMargins(0,0,0,0);
+    layoutHPanel.setSpacing(0);
+
+    zoomSlider.setOrientation(Qt::Horizontal);
+    zoomSlider.setFixedWidth(110);
+
+    openButton.setFixedSize(38, 38);
+    settingsButton.setFixedSize(38, 38);
+    docViewButton.setFixedSize(38, 38);
+    exitButton.setFixedSize(38, 38);
+
+    spacer = new QSpacerItem(10, 20, QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+
+    layoutH2.addWidget(&zoomSlider);
+
+    layoutH3.addWidget(&settingsButton);
+    layoutH3.addWidget(&docViewButton);
+    layoutH3.addWidget(&exitButton);
+
+    layoutHPanel.addWidget(&openButton);
+    layoutHPanel.addLayout(&layoutH1);
+    layoutHPanel.addSpacerItem(spacer);
+    layoutHPanel.addLayout(&layoutH2);
+    layoutHPanel.addWidget(&showLabelsButton);
+    layoutHPanel.addSpacing(12);
+    layoutHPanel.addWidget(&sortingComboBox);
+    layoutHPanel.addSpacing(12);
+    layoutHPanel.addLayout(&layoutH3);
+
+    layoutVRoot.setContentsMargins(0,0,0,0);
+    layoutVRoot.setSpacing(8);
+
+    layoutVRoot.addLayout(&layoutHPanel);
+    layoutVRoot.addWidget(&thumbnailGrid);
+    this->setLayout(&layoutVRoot);
+}
+
 void FolderView::onShowLabelsChanged(bool mode) {
-    ui->showLabelsButton->setChecked(mode);
+    showLabelsButton.setChecked(mode);
     settings->setShowThumbnailLabels(mode);
 }
 
 void FolderView::onShowLabelsButtonToggled(bool mode) {
-    ui->thumbnailGrid->setShowLabels(mode);
+    thumbnailGrid.setShowLabels(mode);
 }
 
 void FolderView::onThumbnailSizeChanged(int newSize) {
-    ui->zoomSlider->setValue(newSize / ui->thumbnailGrid->ZOOM_STEP);
+    zoomSlider.setValue(newSize / thumbnailGrid.ZOOM_STEP);
     settings->setFolderViewIconSize(newSize);
 }
 
 void FolderView::onZoomSliderValueChanged(int value) {
-    ui->thumbnailGrid->setThumbnailSize(value * ui->thumbnailGrid->ZOOM_STEP);
+    thumbnailGrid.setThumbnailSize(value * thumbnailGrid.ZOOM_STEP);
 }
 
 // changed by user via combobox
@@ -71,13 +108,9 @@ void FolderView::onSortingSelected(int mode) {
 }
 
 void FolderView::onSortingChanged(SortingMode mode) {
-    ui->sortingComboBox->blockSignals(true);
-    ui->sortingComboBox->setCurrentIndex(static_cast<int>(mode));
-    ui->sortingComboBox->blockSignals(false);
-}
-
-FolderView::~FolderView() {
-    delete ui;
+    sortingComboBox.blockSignals(true);
+    sortingComboBox.setCurrentIndex(static_cast<int>(mode));
+    sortingComboBox.blockSignals(false);
 }
 
 std::shared_ptr<DirectoryViewWrapper> FolderView::wrapper() {
@@ -87,58 +120,58 @@ std::shared_ptr<DirectoryViewWrapper> FolderView::wrapper() {
 // probably unneeded
 void FolderView::show() {
     QWidget::show();
-    ui->thumbnailGrid->setFocus();
+    thumbnailGrid.setFocus();
 }
 
 // probably unneeded
 void FolderView::hide() {
     QWidget::hide();
-    ui->thumbnailGrid->clearFocus();
+    thumbnailGrid.clearFocus();
 }
 
 void FolderView::setExitButtonEnabled(bool mode) {
-    ui->exitButton->setHidden(!mode);
+    exitButton.setHidden(!mode);
 }
 
 void FolderView::focusInEvent(QFocusEvent *event) {
     Q_UNUSED(event)
-    ui->thumbnailGrid->setFocus();
+    thumbnailGrid.setFocus();
 }
 
 void FolderView::populate(int count) {
-    ui->thumbnailGrid->populate(count);
+    thumbnailGrid.populate(count);
 }
 
 void FolderView::setThumbnail(int pos, std::shared_ptr<Thumbnail> thumb) {
-    ui->thumbnailGrid->setThumbnail(pos, thumb);
+    thumbnailGrid.setThumbnail(pos, thumb);
 }
 
 void FolderView::selectIndex(int index) {
-    ui->thumbnailGrid->selectIndex(index);
+    thumbnailGrid.selectIndex(index);
 }
 
 int FolderView::selectedIndex() {
-    return ui->thumbnailGrid->selectedIndex();
+    return thumbnailGrid.selectedIndex();
 }
 
 void FolderView::focusOn(int index) {
-    ui->thumbnailGrid->focusOn(index);
+    thumbnailGrid.focusOn(index);
 }
 
 void FolderView::setDirectoryPath(QString path) {
-    ui->directoryPathLabel->setText(path);
+    directoryPathLabel.setText(path);
 }
 
 void FolderView::addItem() {
-    ui->thumbnailGrid->addItem();
+    thumbnailGrid.addItem();
 }
 
 void FolderView::insertItem(int index) {
-    ui->thumbnailGrid->insertItem(index);
+    thumbnailGrid.insertItem(index);
 }
 
 void FolderView::removeItem(int index) {
-    ui->thumbnailGrid->removeItem(index);
+    thumbnailGrid.removeItem(index);
 }
 
 // prevent passthrough to parent

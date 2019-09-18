@@ -2,6 +2,9 @@
 #define FOLDERVIEW_H
 
 #include <QWidget>
+#include <QLabel>
+#include <QSlider>
+#include <QComboBox>
 #include <QStyledItemDelegate>
 #include <QAbstractItemView>
 #include "gui/idirectoryview.h"
@@ -9,15 +12,10 @@
 #include "gui/folderview/foldergridview.h"
 #include "gui/customwidgets/actionbutton.h"
 
-namespace Ui {
-    class FolderView;
-}
-
 class FolderView : public QWidget, public IDirectoryView {
     Q_OBJECT
 public:
     explicit FolderView(QWidget *parent = nullptr);
-    ~FolderView();
 
     std::shared_ptr<DirectoryViewWrapper> wrapper();
 
@@ -57,8 +55,18 @@ private slots:
     void onSortingSelected(int);
 
 private:
-    Ui::FolderView *ui;
     std::shared_ptr<DirectoryViewWrapper> mWrapper;
+    void setupLayout();
+
+    QVBoxLayout layoutVRoot;
+    QHBoxLayout layoutH1, layoutH2, layoutH3, layoutHPanel;
+    FolderGridView thumbnailGrid;
+    ActionButton openButton, settingsButton, docViewButton, exitButton;
+    QPushButton showLabelsButton;
+    QLabel directoryPathLabel;
+    QSlider zoomSlider;
+    QComboBox sortingComboBox;
+    QSpacerItem *spacer;
 };
 
 #endif // FOLDERVIEW_H
