@@ -1,12 +1,10 @@
 #include "floatingmessage.h"
-#include "ui_floatingmessage.h"
 
 FloatingMessage::FloatingMessage(OverlayContainerWidget *parent) :
     FloatingWidget(parent),
-    preferredPosition(FloatingWidgetPosition::BOTTOM),
-    ui(new Ui::FloatingMessage)
+    preferredPosition(FloatingWidgetPosition::BOTTOM)
 {
-    ui->setupUi(this);
+    setupLayout();
     hideDelay = 700;
 
     visibilityTimer.setSingleShot(true);
@@ -32,10 +30,6 @@ FloatingMessage::FloatingMessage(OverlayContainerWidget *parent) :
         setContainerSize(parent->size());
 }
 
-FloatingMessage::~FloatingMessage() {
-    delete ui;
-}
-
 void FloatingMessage::readSettings() {
     /*
     // don't interfere with the main panel
@@ -47,8 +41,8 @@ void FloatingMessage::readSettings() {
     */
 }
 
-void FloatingMessage::showMessage(QString text, FloatingWidgetPosition position, FloatingMessageIcon icon, int duration) {
-    setPosition(position);
+void FloatingMessage::showMessage(QString text, FloatingWidgetPosition _position, FloatingMessageIcon icon, int duration) {
+    setPosition(_position);
     doShowMessage(text, icon, duration);
 }
 
@@ -64,9 +58,17 @@ void FloatingMessage::doShowMessage(QString text, FloatingMessageIcon icon, int 
     show();
 }
 
+void FloatingMessage::setupLayout() {
+    layoutHRoot.addWidget(&textLabel);
+    layoutHRoot.addWidget(&iconLabel);
+    layoutHRoot.setContentsMargins(12,11,12,11);
+    layoutHRoot.setSizeConstraint(QLayout::SetDefaultConstraint);
+    this->setLayout(&layoutHRoot);
+}
+
 void FloatingMessage::setText(QString text) {
-    ui->textLabel->setText(text);
-    text.isEmpty()?ui->textLabel->hide():ui->textLabel->show();
+    textLabel.setText(text);
+    text.isEmpty() ? textLabel.hide() : textLabel.show();
     recalculateGeometry();
     update();
 }
@@ -74,19 +76,19 @@ void FloatingMessage::setText(QString text) {
 void FloatingMessage::setIcon(FloatingMessageIcon icon) {
     switch (icon) {
         case FloatingMessageIcon::NO_ICON:
-            ui->iconLabel->hide();
+            iconLabel.hide();
             break;
         case FloatingMessageIcon::ICON_LEFT_EDGE:
-            ui->iconLabel->show();
-            ui->iconLabel->setPixmap(iconLeftEdge.pixmap(20,20));
+            iconLabel.show();
+            iconLabel.setPixmap(iconLeftEdge.pixmap(20,20));
             break;
         case FloatingMessageIcon::ICON_RIGHT_EDGE:
-            ui->iconLabel->show();
-            ui->iconLabel->setPixmap(iconRightEdge.pixmap(20,20));
+            iconLabel.show();
+            iconLabel.setPixmap(iconRightEdge.pixmap(20,20));
             break;
         case FloatingMessageIcon::ICON_SUCCESS:
-            ui->iconLabel->show();
-            ui->iconLabel->setPixmap(iconSuccess.pixmap(16,16));
+            iconLabel.show();
+            iconLabel.setPixmap(iconSuccess.pixmap(16,16));
             break;
     }
 }

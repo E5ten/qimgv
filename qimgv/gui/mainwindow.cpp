@@ -11,8 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
       panelFullscreenOnly(false),
       activeSidePanel(SIDEPANEL_NONE),
       mainPanel(nullptr),
-      copyOverlay(nullptr),
       saveOverlay(nullptr),
+      copyOverlay(nullptr),
       renameOverlay(nullptr)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);

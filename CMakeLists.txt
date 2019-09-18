@@ -15,7 +15,7 @@ message(STATUS "Build configuration: " ${CMAKE_BUILD_TYPE})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lstdc++fs -O3")
 
 # check requirements for std::filesystem
-if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
     message(FATAL_ERROR "\n!!! THIS PROJECT REQUIRES GCC 8 OR LATER !!!\n"
                     "If you already have gcc 8+ you can force it like this:\n"
                     "CC=gcc-8 CXX=g++-8 cmake [...etc]")
