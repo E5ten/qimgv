@@ -1,11 +1,9 @@
 #include "infooverlay.h"
-#include "ui_infooverlay.h"
 
 InfoOverlay::InfoOverlay(OverlayContainerWidget *parent) :
-    FloatingWidget(parent),
-    ui(new Ui::InfoOverlay)
+    FloatingWidget(parent)
 {
-    ui->setupUi(this);
+    setupLayout();
     setPosition(FloatingWidgetPosition::TOPLEFT);
     this->setMarginX(0);
     this->setMarginY(0);
@@ -14,14 +12,16 @@ InfoOverlay::InfoOverlay(OverlayContainerWidget *parent) :
         setContainerSize(parent->size());
 }
 
-InfoOverlay::~InfoOverlay()
-{
-    delete ui;
+void InfoOverlay::setupLayout() {
+    layoutHRoot.addWidget(&posLabel);
+    layoutHRoot.addWidget(&nameLabel);
+    layoutHRoot.addWidget(&infoLabel);
+    this->setLayout(&layoutHRoot);
 }
 
 void InfoOverlay::setInfo(QString pos, QString fileName, QString info) {
-    ui->posLabel->setText(pos);
-    ui->nameLabel->setText(fileName);
-    ui->infoLabel->setText(info);
+    posLabel.setText(pos);
+    nameLabel.setText(fileName);
+    infoLabel.setText(info);
     this->adjustSize();
 }

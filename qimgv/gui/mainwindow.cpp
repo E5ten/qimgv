@@ -72,12 +72,12 @@ void MainWindow::setupUi() {
     controlsOverlay = new ControlsOverlay(docWidget.get()); // todo
 
     imageInfoOverlay = new ImageInfoOverlay(this);
-    changelogWindow = new ChangelogWindow(this);
+    //changelogWindow = new ChangelogWindow(this);
     sidePanel = new SidePanel(this);
 
     // TODO: do something about this spaghetti
     cropOverlay = new CropOverlay(viewerWidget.get());
-    cropPanel = new CropPanel(cropOverlay, this);
+    cropPanel = new CropPanel(cropOverlay, this); // todo
     connect(cropPanel, SIGNAL(cancel()), this, SLOT(hideCropPanel()));
     connect(cropPanel, SIGNAL(crop(QRect)), this, SLOT(hideCropPanel()));
     connect(cropPanel, SIGNAL(crop(QRect)), this, SIGNAL(cropRequested(QRect)));
@@ -85,6 +85,7 @@ void MainWindow::setupUi() {
     layout.addWidget(sidePanel);
 
     floatingMessage = new FloatingMessage(this);
+
     thumbnailStrip.reset(new ThumbnailStrip());
     mainPanel = new MainPanel(thumbnailStrip, this);
 
@@ -547,12 +548,12 @@ void MainWindow::hideSaveOverlay() {
 }
 
 void MainWindow::showChangelogWindow() {
-    changelogWindow->show();
+    //changelogWindow->show();
 }
 
 void MainWindow::showChangelogWindow(QString text) {
-    changelogWindow->setText(text);
-    changelogWindow->show();
+    //changelogWindow->setText(text);
+    //changelogWindow->show();
 }
 
 void MainWindow::triggerCropPanel() {
