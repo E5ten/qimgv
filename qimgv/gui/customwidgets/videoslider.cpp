@@ -1,6 +1,7 @@
 #include "videoslider.h"
 
 VideoSlider::VideoSlider(QWidget *parent) : QSlider(parent) {
+    setOrientation(Qt::Horizontal);
 }
 
 void VideoSlider::mousePressEvent(QMouseEvent *event) {

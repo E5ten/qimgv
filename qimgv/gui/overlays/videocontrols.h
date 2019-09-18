@@ -2,19 +2,17 @@
 #define VIDEOCONTROLS_H
 
 #include "gui/customwidgets/floatingwidget.h"
+#include "gui/customwidgets/videoslider.h"
 #include <QPushButton>
+#include <QHBoxLayout>
+#include <QSpacerItem>
+#include <QLabel>
 
-namespace Ui {
-class VideoControls;
-}
-
-class VideoControls : public FloatingWidget
-{
+class VideoControls : public FloatingWidget {
     Q_OBJECT
 
 public:
     explicit VideoControls(OverlayContainerWidget *parent = nullptr);
-    ~VideoControls();
 
 public slots:
     void setDurationSeconds(int);
@@ -30,9 +28,14 @@ signals:
     void prevFrame();
 
 private:
-    Ui::VideoControls *ui;
     int lastVideoPosition;
     QIcon playIcon, pauseIcon;
+    void setupLayout();
+    QHBoxLayout layoutHRoot, layoutHButtons;
+    QPushButton nextFrameButton, prevFrameButton, pauseButton;
+    VideoSlider seekBar;
+    QLabel label, durationLabel, positionLabel;
+    QSpacerItem *spacerH1, *spacerH2, *spacerH3;
 };
 
 #endif // VIDEOCONTROLS_H

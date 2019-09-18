@@ -1,11 +1,12 @@
 #include "videocontrols.h"
-#include "ui_videocontrols.h"
 
 VideoControls::VideoControls(OverlayContainerWidget *parent) :
     FloatingWidget(parent),
-    ui(new Ui::VideoControls)
+    spacerH1(nullptr),
+    spacerH2(nullptr),
+    spacerH3(nullptr)
 {
-    ui->setupUi(this);
+    setupLayout();
     this->setAttribute(Qt::WA_NoMousePropagation, true);
     hide();
 
@@ -16,36 +17,71 @@ VideoControls::VideoControls(OverlayContainerWidget *parent) :
 
     lastVideoPosition = -1;
 
-    //ui->seekLeftButton->setVisible(false);
-    //ui->seekRightButton->setVisible(false);
-
-    connect(ui->pauseButton, SIGNAL(pressed()), this, SIGNAL(pause()));
-    //connect(ui->seekLeftButton, SIGNAL(pressed()), this, SIGNAL(seekLeft()));
-    //connect(ui->seekRightButton, SIGNAL(pressed()), this, SIGNAL(seekRight()));
-    connect(ui->prevFrameButton, SIGNAL(pressed()), this, SIGNAL(prevFrame()));
-    connect(ui->nextFrameButton, SIGNAL(pressed()), this, SIGNAL(nextFrame()));
-    connect(ui->seekBar, SIGNAL(sliderMovedX(int)), this, SIGNAL(seek(int)));
+    connect(&pauseButton, SIGNAL(pressed()), this, SIGNAL(pause()));
+    connect(&prevFrameButton, SIGNAL(pressed()), this, SIGNAL(prevFrame()));
+    connect(&nextFrameButton, SIGNAL(pressed()), this, SIGNAL(nextFrame()));
+    connect(&seekBar, SIGNAL(sliderMovedX(int)), this, SIGNAL(seek(int)));
 
     if(parent)
         setContainerSize(parent->size());
 }
 
-VideoControls::~VideoControls() {
-    delete ui;
+void VideoControls::setupLayout() {
+    this->setMinimumSize(300, 40);
+
+    spacerH1 = new QSpacerItem(4, 10, QSizePolicy::Fixed, QSizePolicy::Maximum);
+    spacerH2 = new QSpacerItem(5, 10, QSizePolicy::Fixed, QSizePolicy::Maximum);
+    spacerH3 = new QSpacerItem(5, 10, QSizePolicy::Fixed, QSizePolicy::Maximum);
+    label.setText("/");
+    seekBar.setFixedSize(200,28);
+    seekBar.setFocusPolicy(Qt::NoFocus);
+    pauseButton.setFocusPolicy(Qt::NoFocus);
+    prevFrameButton.setFocusPolicy(Qt::NoFocus);
+    nextFrameButton.setFocusPolicy(Qt::NoFocus);
+    pauseButton.setAccessibleName("Button");
+    prevFrameButton.setAccessibleName("ButtonSetLeft");
+    nextFrameButton.setAccessibleName("ButtonSetRight");
+    pauseButton.setFixedSize(44,36);
+    prevFrameButton.setFixedSize(36,36);
+    nextFrameButton.setFixedSize(36,36);
+    pauseButton.setIconSize(QSize(24,24));
+    prevFrameButton.setIconSize(QSize(24,24));
+    nextFrameButton.setIconSize(QSize(24,24));
+    prevFrameButton.setIcon(QIcon(":res/icons/buttons/skip-backwards24.png"));
+    nextFrameButton.setIcon(QIcon(":res/icons/buttons/skip-forward24.png"));
+
+    layoutHButtons.setContentsMargins(0,0,0,0);
+    layoutHButtons.setSpacing(0);
+
+    layoutHButtons.addWidget(&pauseButton);
+    layoutHButtons.addSpacing(4);
+    layoutHButtons.addWidget(&prevFrameButton);
+    layoutHButtons.addWidget(&nextFrameButton);
+
+    layoutHRoot.setContentsMargins(14,10,14,10);
+    layoutHRoot.setSpacing(7);
+
+    layoutHRoot.addLayout(&layoutHButtons);
+    layoutHRoot.addSpacing(5);
+    layoutHRoot.addWidget(&seekBar);
+    layoutHRoot.addSpacing(5);
+    layoutHRoot.addWidget(&positionLabel);
+    layoutHRoot.addWidget(&label);
+    layoutHRoot.addWidget(&durationLabel);
+    this->setLayout(&layoutHRoot);
 }
 
 void VideoControls::setDurationSeconds(int time) {
     int hours   = time / 3600;
     int minutes = time / 60;
     int seconds = time % 60;
-    //qDebug() << "total:" << hours << ":" << minutes << ":" << seconds;
     QString str = QString("%1").arg(minutes, 2, 10, QChar('0')) + ":" +
                   QString("%1").arg(seconds, 2, 10, QChar('0'));
     if(hours)
         str.append(QString("%1").arg(hours, 2, 10, QChar('0')) + ":");
 
-    ui->seekBar->setRange(0, time);
-    ui->durationLabel->setText(str);
+    seekBar.setRange(0, time);
+    durationLabel.setText(str);
     recalculateGeometry();
 }
 
@@ -54,16 +90,15 @@ void VideoControls::setPositionSeconds(int time) {
         int hours   = time / 3600;
         int minutes = time / 60;
         int seconds = time % 60;
-        //qDebug() << hours << ":" << minutes << ":" << seconds;
         QString str = QString("%1").arg(minutes, 2, 10, QChar('0')) + ":" +
                       QString("%1").arg(seconds, 2, 10, QChar('0'));
         if(hours)
             str.append(QString("%1").arg(hours, 2, 10, QChar('0')) + ":");
 
-        ui->positionLabel->setText(str);
-        ui->seekBar->blockSignals(true);
-        ui->seekBar->setValue(time);
-        ui->seekBar->blockSignals(false);
+        positionLabel.setText(str);
+        seekBar.blockSignals(true);
+        seekBar.setValue(time);
+        seekBar.blockSignals(false);
         recalculateGeometry();
     }
     lastVideoPosition = time;
@@ -71,7 +106,7 @@ void VideoControls::setPositionSeconds(int time) {
 
 void VideoControls::onVideoPaused(bool mode) {
     if(mode)
-        ui->pauseButton->setIcon(playIcon);
+        pauseButton.setIcon(playIcon);
     else
-        ui->pauseButton->setIcon(pauseIcon);
+        pauseButton.setIcon(pauseIcon);
 }
