@@ -11,13 +11,15 @@
 #include "gui/overlays/cropoverlay.h"
 #include <QTimer>
 #include <QDebug>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QLabel>
+#include <QDoubleSpinBox>
+#include <QComboBox>
+#include <QPushButton>
+#include <QSpacerItem>
 
-namespace Ui {
-class CropPanel;
-}
-
-class CropPanel : public SidePanelWidget
-{
+class CropPanel : public SidePanelWidget {
     Q_OBJECT
 
 public:
@@ -48,10 +50,20 @@ private slots:
     void onAspectRatioSelected(); // via ComboBox
 
 private:
-    Ui::CropPanel *ui;
+    void setupLayout();
     QRect cropRect;
     CropOverlay *overlay;
     QSize realSize;
+    // ui
+    QVBoxLayout layoutVRoot, layoutVGroup1, layoutVGroup2, layoutVGroup3;
+    QHBoxLayout layoutHButtons, layoutHSize1, layoutHSize2, layoutHPos1, layoutHPos2, layoutHAR;
+    QPushButton cancelButton, cropButton;
+    QGroupBox groupBox, groupBox2, groupBox3;
+    SpinBoxInputFix widthSpinBox, heightSpinBox, posXSpinBox, posYSpinBox;
+    QDoubleSpinBox ARX, ARY;
+    QComboBox ARcomboBox;
+    QSpacerItem *spacer;
+    QLabel label1, label2, label3;
 };
 
 #endif // CROPPANEL_H

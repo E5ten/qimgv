@@ -5,7 +5,6 @@
 #include "gui/customwidgets/videoslider.h"
 #include <QPushButton>
 #include <QHBoxLayout>
-#include <QSpacerItem>
 #include <QLabel>
 
 class VideoControls : public FloatingWidget {
@@ -35,7 +34,6 @@ private:
     QPushButton nextFrameButton, prevFrameButton, pauseButton;
     VideoSlider seekBar;
     QLabel label, durationLabel, positionLabel;
-    QSpacerItem *spacerH1, *spacerH2, *spacerH3;
 };
 
 #endif // VIDEOCONTROLS_H

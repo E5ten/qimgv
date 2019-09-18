@@ -1,28 +1,28 @@
 #include "sidepanel.h"
-#include "ui_sidepanel.h"
 
 SidePanel::SidePanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SidePanel),
     mWidget(nullptr)
 {
-    ui->setupUi(this);
+    setupLayout();
     this->setObjectName("SidePanel");
     this->hide();
 }
 
-SidePanel::~SidePanel()
-{
-    delete ui;
+void SidePanel::setupLayout() {
+    this->setFixedWidth(250);
+    layoutVRoot.setContentsMargins(0,0,0,0);
+    layoutVRoot.setSpacing(0);
 }
 
 void SidePanel::setWidget(SidePanelWidget* w) {
     if(mWidget) {
         mWidget->hide();
-        ui->layout->removeWidget(mWidget);
+        layoutVRoot.removeWidget(mWidget);
     }
     mWidget = w;
-    ui->layout->addWidget(w);
+    layoutVRoot.addWidget(mWidget);
+    this->setLayout(&layoutVRoot);
     w->show();
 }
 

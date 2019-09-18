@@ -1,10 +1,7 @@
 #include "videocontrols.h"
 
 VideoControls::VideoControls(OverlayContainerWidget *parent) :
-    FloatingWidget(parent),
-    spacerH1(nullptr),
-    spacerH2(nullptr),
-    spacerH3(nullptr)
+    FloatingWidget(parent)
 {
     setupLayout();
     this->setAttribute(Qt::WA_NoMousePropagation, true);
@@ -28,10 +25,6 @@ VideoControls::VideoControls(OverlayContainerWidget *parent) :
 
 void VideoControls::setupLayout() {
     this->setMinimumSize(300, 40);
-
-    spacerH1 = new QSpacerItem(4, 10, QSizePolicy::Fixed, QSizePolicy::Maximum);
-    spacerH2 = new QSpacerItem(5, 10, QSizePolicy::Fixed, QSizePolicy::Maximum);
-    spacerH3 = new QSpacerItem(5, 10, QSizePolicy::Fixed, QSizePolicy::Maximum);
     label.setText("/");
     seekBar.setFixedSize(200,28);
     seekBar.setFocusPolicy(Qt::NoFocus);

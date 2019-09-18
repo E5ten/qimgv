@@ -1,25 +1,23 @@
 #include "croppanel.h"
-#include "ui_croppanel.h"
 
 CropPanel::CropPanel(CropOverlay *_overlay, QWidget *parent) :
     SidePanelWidget(parent),
-    ui(new Ui::CropPanel),
-    overlay(_overlay)
+    overlay(_overlay),
+    spacer(nullptr)
 {
-    ui->setupUi(this);
-    setFocusPolicy(Qt::NoFocus);
+    setupLayout();
 
     hide();
 
-    connect(ui->cancelButton, SIGNAL(clicked()), this, SIGNAL(cancel()));
-    connect(ui->cropButton, SIGNAL(clicked()), this, SLOT(onCropClicked()));
-    connect(ui->width, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
-    connect(ui->height, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
-    connect(ui->posX, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
-    connect(ui->posY, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
-    connect(ui->ARX, SIGNAL(valueChanged(double)), this, SLOT(onAspectRatioChange()));
-    connect(ui->ARY, SIGNAL(valueChanged(double)), this, SLOT(onAspectRatioChange()));
-    connect(ui->ARcomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onAspectRatioSelected()));
+    connect(&cancelButton, SIGNAL(clicked()), this, SIGNAL(cancel()));
+    connect(&cropButton, SIGNAL(clicked()), this, SLOT(onCropClicked()));
+    connect(&widthSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
+    connect(&heightSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
+    connect(&posXSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
+    connect(&posYSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onSelectionChange()));
+    connect(&ARX, SIGNAL(valueChanged(double)), this, SLOT(onAspectRatioChange()));
+    connect(&ARY, SIGNAL(valueChanged(double)), this, SLOT(onAspectRatioChange()));
+    connect(&ARcomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onAspectRatioSelected()));
 
     connect(overlay, SIGNAL(selectionChanged(QRect)),
             this, SLOT(onSelectionOutsideChange(QRect)));
@@ -32,25 +30,142 @@ CropPanel::CropPanel(CropOverlay *_overlay, QWidget *parent) :
     connect(this, SIGNAL(selectAll()), overlay, SLOT(selectAll()));
 }
 
-CropPanel::~CropPanel()
-{
-    delete ui;
+CropPanel::~CropPanel() {
+    delete spacer;
+}
+
+void CropPanel::setupLayout() {
+    cropButton.setAccessibleName("Button");
+    cancelButton.setAccessibleName("Button");
+    cropButton.setText("Crop");
+    cancelButton.setText("Cancel");
+
+    ARcomboBox.addItem("Free");
+    ARcomboBox.addItem("Custom");
+    ARcomboBox.addItem("Current Image");
+    ARcomboBox.addItem("This Screen");
+    ARcomboBox.addItem("1:1");
+    ARcomboBox.addItem("4:3");
+    ARcomboBox.addItem("16:9");
+    ARcomboBox.addItem("16:10");
+
+    widthSpinBox.setAlignment(Qt::AlignCenter);
+    widthSpinBox.setButtonSymbols(QAbstractSpinBox::NoButtons);
+    widthSpinBox.setKeyboardTracking(false);
+
+    heightSpinBox.setAlignment(Qt::AlignCenter);
+    heightSpinBox.setButtonSymbols(QAbstractSpinBox::NoButtons);
+    heightSpinBox.setKeyboardTracking(false);
+
+    posXSpinBox.setAlignment(Qt::AlignCenter);
+    posXSpinBox.setButtonSymbols(QAbstractSpinBox::NoButtons);
+    posXSpinBox.setKeyboardTracking(false);
+
+    posYSpinBox.setAlignment(Qt::AlignCenter);
+    posYSpinBox.setButtonSymbols(QAbstractSpinBox::NoButtons);
+    posYSpinBox.setKeyboardTracking(false);
+
+    ARX.setAlignment(Qt::AlignCenter);
+    ARX.setButtonSymbols(QAbstractSpinBox::NoButtons);
+    ARX.setKeyboardTracking(false);
+
+    ARY.setAlignment(Qt::AlignCenter);
+    ARY.setButtonSymbols(QAbstractSpinBox::NoButtons);
+    ARY.setKeyboardTracking(false);
+
+    layoutHSize1.setContentsMargins(0,0,0,0);
+    layoutHSize2.setContentsMargins(0,0,0,0);
+    layoutHPos1.setContentsMargins(0,0,0,0);
+    layoutHPos2.setContentsMargins(0,0,0,0);
+    layoutHSize1.setSpacing(10);
+    layoutHSize2.setSpacing(10);
+    layoutHPos1.setSpacing(10);
+    layoutHPos2.setSpacing(10);
+
+    layoutHAR.setContentsMargins(0,0,0,0);
+
+    layoutHSize1.addWidget(new QLabel("Width"));
+    layoutHSize1.addWidget(&widthSpinBox);
+
+    layoutHSize2.addWidget(new QLabel("Height"));
+    layoutHSize2.addWidget(&heightSpinBox);
+
+    layoutHPos1.addWidget(new QLabel("X"));
+    layoutHPos1.addWidget(&posXSpinBox);
+
+    layoutHPos2.addWidget(new QLabel("Y"));
+    layoutHPos2.addWidget(&posYSpinBox);
+
+    layoutVGroup1.setContentsMargins(0,0,0,0);
+    layoutVGroup2.setContentsMargins(0,0,0,0);
+    layoutVGroup3.setContentsMargins(0,0,0,0);
+    layoutVGroup1.setSpacing(8);
+    layoutVGroup2.setSpacing(8);
+    layoutVGroup3.setSpacing(8);
+
+    label1.setText("<b>Size</b>");
+    label2.setText("<b>Position</b>");
+    label3.setText("<b>Aspect Ratio</b>");
+    label1.setAlignment(Qt::AlignCenter);
+    label2.setAlignment(Qt::AlignCenter);
+    label3.setAlignment(Qt::AlignCenter);
+
+    layoutHAR.addWidget(&ARX);
+    layoutHAR.addWidget(new QLabel(":"));
+    layoutHAR.addWidget(&ARY);
+
+    layoutVGroup1.addWidget(&label1);
+    layoutVGroup2.addWidget(&label2);
+    layoutVGroup3.addWidget(&label3);
+
+    layoutVGroup1.addLayout(&layoutHSize1);
+    layoutVGroup1.addLayout(&layoutHSize2);
+
+    layoutVGroup2.addLayout(&layoutHPos1);
+    layoutVGroup2.addLayout(&layoutHPos2);
+
+    layoutVGroup3.addWidget(&ARcomboBox);
+    layoutVGroup3.addLayout(&layoutHAR);
+
+    groupBox.setLayout(&layoutVGroup1);
+    groupBox2.setLayout(&layoutVGroup2);
+    groupBox3.setLayout(&layoutVGroup3);
+
+    layoutHButtons.setContentsMargins(0,0,0,0);
+    layoutHButtons.setSpacing(5);
+    layoutHButtons.addWidget(&cropButton);
+    layoutHButtons.addWidget(&cancelButton);
+
+    spacer = new QSpacerItem(20, 40, QSizePolicy::Maximum, QSizePolicy::Expanding);
+
+    layoutVRoot.setContentsMargins(20,20,18,0);
+    layoutVRoot.setSpacing(8);
+
+    layoutVRoot.addWidget(&groupBox);
+    layoutVRoot.addWidget(&groupBox2);
+    layoutVRoot.addWidget(&groupBox3);
+    layoutVRoot.addSpacing(5);
+    layoutVRoot.addLayout(&layoutHButtons);
+    layoutVRoot.addSpacerItem(spacer);
+
+    setLayout(&layoutVRoot);
+    setFocusPolicy(Qt::NoFocus);
 }
 
 void CropPanel::setImageRealSize(QSize sz) {
-    ui->width->setMaximum(sz.width());
-    ui->height->setMaximum(sz.height());
+    widthSpinBox.setMaximum(sz.width());
+    heightSpinBox.setMaximum(sz.height());
     realSize = sz;
     // reset to free mode on image change
-    ui->ARcomboBox->setCurrentIndex(0);
+    ARcomboBox.setCurrentIndex(0);
     // update aspect ratio in input fields
 
     onAspectRatioSelected();
 }
 
 void CropPanel::onCropClicked() {
-    QRect target(ui->posX->value(), ui->posY->value(),
-                 ui->width->value(), ui->height->value());
+    QRect target(posXSpinBox.value(), posYSpinBox.value(),
+                 widthSpinBox.value(), heightSpinBox.value());
     if(target.width() > 0 && target.height() > 0 && target.size() != realSize)
         emit crop(target);
     else
@@ -59,16 +174,16 @@ void CropPanel::onCropClicked() {
 
 // on user input
 void CropPanel::onSelectionChange() {
-    emit selectionChanged(QRect(ui->posX->value(),
-                                ui->posY->value(),
-                                ui->width->value(),
-                                ui->height->value()));
+    emit selectionChanged(QRect(posXSpinBox.value(),
+                                posYSpinBox.value(),
+                                widthSpinBox.value(),
+                                heightSpinBox.value()));
 }
 
 void CropPanel::onAspectRatioChange() {
-    ui->ARcomboBox->setCurrentIndex(1); // "Custom"
-    if(ui->ARX->value() && ui->ARY->value())
-        emit aspectRatioChanged(QPointF(ui->ARX->value(), ui->ARY->value()));
+    ARcomboBox.setCurrentIndex(1); // "Custom"
+    if(ARX.value() && ARY.value())
+        emit aspectRatioChanged(QPointF(ARX.value(), ARY.value()));
 }
 
 // 0 == free
@@ -79,7 +194,7 @@ void CropPanel::onAspectRatioChange() {
 void CropPanel::onAspectRatioSelected() {
     QPointF newAR(1, 1);
 
-    int index = ui->ARcomboBox->currentIndex();
+    int index = ARcomboBox.currentIndex();
     switch(index) {
     case 0:
     {
@@ -90,7 +205,7 @@ void CropPanel::onAspectRatioSelected() {
     }
     case 1:
     {
-        newAR = QPointF(ui->ARX->value(), ui->ARY->value());
+        newAR = QPointF(ARX.value(), ARY.value());
         break;
     }
     case 2:
@@ -102,7 +217,7 @@ void CropPanel::onAspectRatioSelected() {
     {
         QScreen* screen = nullptr;
 #if QT_VERSION >= 0x050A00
-        screen = QGuiApplication::screenAt(mapToGlobal(ui->ARcomboBox->geometry().topLeft()));
+        screen = QGuiApplication::screenAt(mapToGlobal(ARcomboBox.geometry().topLeft()));
         if(!screen)
             screen = QGuiApplication::primaryScreen();
 #else
@@ -137,32 +252,32 @@ void CropPanel::onAspectRatioSelected() {
     }
     }
 
-    ui->ARX->blockSignals(true);
-    ui->ARY->blockSignals(true);
-    ui->ARX->setValue(newAR.x());
-    ui->ARY->setValue(newAR.y());
-    ui->ARX->blockSignals(false);
-    ui->ARY->blockSignals(false);
+    ARX.blockSignals(true);
+    ARY.blockSignals(true);
+    ARX.setValue(newAR.x());
+    ARY.setValue(newAR.y());
+    ARX.blockSignals(false);
+    ARY.blockSignals(false);
     if(index)
         overlay->setAspectRatio(newAR);
 }
 
 // update input box values
 void CropPanel::onSelectionOutsideChange(QRect rect) {
-    ui->width->blockSignals(true);
-    ui->height->blockSignals(true);
-    ui->posX->blockSignals(true);
-    ui->posY->blockSignals(true);
+    widthSpinBox.blockSignals(true);
+    heightSpinBox.blockSignals(true);
+    posXSpinBox.blockSignals(true);
+    posYSpinBox.blockSignals(true);
 
-    ui->width->setValue(rect.width());
-    ui->height->setValue(rect.height());
-    ui->posX->setValue(rect.left());
-    ui->posY->setValue(rect.top());
+    widthSpinBox.setValue(rect.width());
+    heightSpinBox.setValue(rect.height());
+    posXSpinBox.setValue(rect.left());
+    posYSpinBox.setValue(rect.top());
 
-    ui->width->blockSignals(false);
-    ui->height->blockSignals(false);
-    ui->posX->blockSignals(false);
-    ui->posY->blockSignals(false);
+    widthSpinBox.blockSignals(false);
+    heightSpinBox.blockSignals(false);
+    posXSpinBox.blockSignals(false);
+    posYSpinBox.blockSignals(false);
 }
 
 void CropPanel::paintEvent(QPaintEvent *) {
@@ -175,7 +290,7 @@ void CropPanel::paintEvent(QPaintEvent *) {
 void CropPanel::show() {
     QWidget::show();
     // stackoverflow sorcery
-    QTimer::singleShot(0,ui->width,SLOT(setFocus()));
+    QTimer::singleShot(0, &widthSpinBox, SLOT(setFocus()));
 }
 
 void CropPanel::keyPressEvent(QKeyEvent *event) {
@@ -189,3 +304,5 @@ void CropPanel::keyPressEvent(QKeyEvent *event) {
         event->ignore();
     }
 }
+
+
