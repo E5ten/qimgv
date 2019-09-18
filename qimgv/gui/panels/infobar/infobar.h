@@ -2,13 +2,11 @@
 #define INFOBAR_H
 
 #include <QWidget>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QSpacerItem>
 
-namespace Ui {
-class InfoBar;
-}
-
-class InfoBar : public QWidget
-{
+class InfoBar : public QWidget {
     Q_OBJECT
 
 public:
@@ -20,7 +18,10 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
 private:
-    Ui::InfoBar *ui;
+    void setupLayout();
+    QHBoxLayout layoutHRoot;
+    QLabel indexLabel, pathLabel, infoLabel;
+    QSpacerItem *spacer;
 };
 
 #endif // INFOBAR_H
